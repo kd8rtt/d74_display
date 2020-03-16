@@ -1,5 +1,5 @@
 # d74_display
-A script to connect to a Kenwood TH-D74 over USB and remotely display data on a 16x2 LCD
+A script to connect a Raspberry Pi to a Kenwood TH-D74 over USB and remotely display data on a 16x2 LCD
 
 See https://kd8rtt.com/2020/03/15/remote-display-over-usb-for-kenwood-th-d74/ for more details on the hardware used and operation of the program
 

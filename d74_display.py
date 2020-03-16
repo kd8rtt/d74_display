@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# Example using a character LCD connected to a Raspberry Pi
 import time
 import Adafruit_CharLCD as LCD
 import serial
@@ -6,7 +7,7 @@ import os
 import csv
 
 # Functions definition
-def switch_mode(argument): # This function reports the modulation mode
+def switch_mode(argument):
     switcher = {
         0: "FM",
         1: "DV",
@@ -21,7 +22,7 @@ def switch_mode(argument): # This function reports the modulation mode
     }
     return switcher.get(argument, "INV")
 
-# This function loads in the memory file
+# this function loads in the memory file
 #  and checks the receieved memory channel
 #  number against the list of names
 def mem_name(ch_num):
@@ -54,7 +55,7 @@ def mem_name(ch_num):
                     mem_txt = 'None'
             if mem_txt == 'None':
                 return mem_txt
-    # If no memory file is found, treat it like an unnammed memory channel
+    # if no memory file is found, treat it like an unnammed memory channel
     except:
         mem_txt = 'None'
         return mem_txt
@@ -85,7 +86,7 @@ try:
                                         timeout = 0.5)
     ser.flushInput()
     ser.flushOutput()
-    ser.write('BL\r'.encode()) # Get battery capacity to confirm proper operation
+    ser.write('BL\r'.encode()) # get battery capacity to confirm proper operation
     init_data = ser.read(4)
     if init_data[3] == "0":
         p_f = "TH-D74 OK\nBattery: <25%"
@@ -104,24 +105,24 @@ try:
     time.sleep(3)
     lcd.clear()
     while(1):
-        ser.write('BC\r'.encode()) # Sets selected band (0 = band a, 1 = band b)
+        ser.write('BC\r'.encode()) # sets selected band (0 = band a, 1 = band b)
         bnd_data = ser.read(4)
         a_b = bnd_data[3]
         ser.flushInput()
-    ser.flushOutput()
-    get_mem = 'MR ' + a_b + '\r'
-    ser.write(get_mem.encode()) # Get memory channel mode and channel
-    mem_data = ser.read(6)
-    if mem_data[0] == 'N':
-        print 'no mem'
-        mem_txt = 'None'
-    else:
-        input_num = '0' + mem_data[3:6]
-        mem_txt = mem_name(input_num)
-        print mem_txt
+        ser.flushOutput()
+        get_mem = 'MR ' + a_b + '\r'
+        ser.write(get_mem.encode()) # get memory channel mode and channel
+        mem_data = ser.read(6)
+        if mem_data[0] == 'N':
+            print 'no mem'
+            mem_txt = 'None'
+        else:
+            input_num = '0' + mem_data[3:6]
+            mem_txt = mem_name(input_num)
+            print mem_txt
         ser.flushInput()
         freq_active = 'FO ' + a_b + '\r'
-        ser.write(freq_active.encode()) # Get current frequency and mode
+        ser.write(freq_active.encode()) # get current frequency and mode
         f_data = ser.read(50)
         mhz_string = f_data[6:9]
         khz_string = f_data[9:12]
@@ -130,23 +131,23 @@ try:
         mode_raw = f_data[31]
         mode = switch_mode(int(mode_raw))
         ser.flushInput()
-        ser.write('RT\r'.encode()) # Get current time and date
+        ser.write('RT\r'.encode()) # get current time and date
         d_time = ser.read(15)
         utc = d_time[5:7] + "/" + d_time[7:9] + "  " + d_time[9:11] + ":" + d_time[11:13] + ":" + d_time[13:15] + "Z"
-        if mem_txt == 'None': # If no memory channel name, just display frequency, mode, and date/time
+        if mem_txt == 'None': # if no memory channel name, just display frequency, mode, and date/time
              lcd_out = freq_string + " " + mode[0] + "\n" + utc
         else:
              spaces = 16 - len(mem_txt)
              for i in range(spaces):
                  mem_txt = mem_txt + ' '
-             lcd_out = mem_txt + '\n' + utc # If there is a memory channel, display it and date/time
-    lcd.message(lcd_out)
-    lcd.home()
-    time.sleep(0.1) # Polls the D74 ten times per second for changes
-    ser.flushInput()
-    ser.flushOutput()
-    print lcd_out
-# If an error is encountered at any point,
+             lcd_out = mem_txt + '\n' + utc # if there is a memory channel, display it and date/time
+        lcd.message(lcd_out)
+        lcd.home()
+        time.sleep(0.1) # polls the D74 ten times per second for changes
+        ser.flushInput()
+        ser.flushOutput()
+        print lcd_out
+# if an error is encountered at any point,
 #  print a message to the LCD and shutdown the Pi
 except:
     lcd.clear()
